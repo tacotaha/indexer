@@ -15,7 +15,7 @@ import base64
 import pickle
 import logging
 import threading
-from support.token_extract import extract_tokens
+from token_extract import extract_tokens
 
 class Indexer:
     def __init__(self, path=None, threads=5):
