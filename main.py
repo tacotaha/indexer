@@ -11,6 +11,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-p", "--path", dest="path", default=None,
                         help="Document path")
+    parser.add_argument("-t", "--threads", dest="threads",
+                        help="Number of threads to launch")
     parser.add_argument("-e", "--extract", dest="extract",
                         help="Path to an html file from which to extract tokens")
     parser.add_argument("-v", dest="verbose", action="store_true",
@@ -18,7 +20,10 @@ def main():
     args = parser.parse_args()
     path = args.path
     verbose = True if args.verbose else False
-    indexer = Indexer(verbose, path)
+    path = args.path if args.path else "docs"
+    threads = int(args.threads) if args.threads else 5
+    assert args.path is not None
+    indexer = Indexer(verbose, path, threads)
     if args.extract:
         string = indexer.extract_tokens(args.extract)
         with open("output.txt", "w") as w:
