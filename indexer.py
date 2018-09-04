@@ -18,15 +18,14 @@ import threading
 from support.token_extract import extract_tokens
 
 class Indexer:
-    def __init__(self, verbose=False, path=None, threads=5):
+    def __init__(self, path=None, threads=5):
         self.logger = logging.getLogger("indexer")
         self.logger.setLevel(logging.DEBUG)
         fh = logging.FileHandler("indexer.log")
         fh.setFormatter(logging.Formatter('%(asctime)s - \
             %(name)s - %(levelname)s - %(message)s'))
         self.logger.addHandler(fh)
-        self.verbose = verbose
-        self.path = path
+        self.path = os.path.abspath(path)
         self.threads = threads
         self.lock = threading.Lock()
 
@@ -57,31 +56,27 @@ class Indexer:
             end_index = document_count - 1
         else:
             end_index = ((tid+1)*document_count) // self.threads - 1
-        self.logger.info("[{}] Start_index: {}, end: {}".format(tid, start_index, end_index))
         for document in os.listdir(document_dir)[start_index:end_index]:
             file_name = os.fsdecode(document)
             tokens = extract_tokens(os.path.join(self.path, file_name))
             for (freq, tok) in tokens:
                 file_name = os.path.join(b"index", base64.b16encode(tok.encode()))
-                try:
-                    self.lock.acquire()
-                    f = open(file_name, "rb")
-                    token = pickle.load(f)
-                    f.close()
-                    self.lock.release()
-                except IOError as e:
-                    token = []
-                token.append((freq, document))
-                try:
-                    self.lock.acquire()
-                    token_file = open(file_name, "wb")
-                    pickle.dump(token, token_file)
-                    token_file.close()
-                    self.lock.release()
-                except Exception as e:
-                    self.logger.info("[{}]: {}".format(tid, e))
-            if count  % 500 == 0:
-                self.logger.info("[%d]: indexed %d/%d", tid, count, document_count)
+                with self.lock:
+                    try:
+                        f = open(file_name, "rb")
+                        token = pickle.load(f)
+                        f.close()
+                    except IOError as e:
+                        token = []
+                    token.append((freq, document))
+                    try:
+                        token_file = open(file_name, "wb")
+                        pickle.dump(token, token_file)
+                        token_file.close()
+                    except Exception as e:
+                        self.logger.info("[{}]: {}".format(tid, e))
+            if count  % 1000 == 0:
+                self.logger.info("[%d]: indexed %d/%d", tid, count, end_index-start_index)
             count += 1
 
     def __del__(self):
