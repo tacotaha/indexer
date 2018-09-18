@@ -4,7 +4,7 @@
 ## Description
 Given a set of documents, the indexer will create a directory by the name of
 ```index``` containing a file for every term in the corpus. Within each file is a
-[pickled](https://docs.python.org/3/library/pickle.html) list of tupples of the form 
+[pickled](https://docs.python.org/3/library/pickle.html) list of tuples of the form 
 (f, d) where f is the frequency of the term in the document d.
  
 ## Installation
