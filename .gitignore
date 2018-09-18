@@ -1,0 +1,9 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# documents
+docs
+raw
+index
+tokenized-raw
+*.pickle
