@@ -10,7 +10,7 @@ Given a set of documents, the indexer will create a directory by the name of
 ## Installation
 
 ```
-  $ git clone https://github.com/tazzaoui/indexer.git && cd indexer
+  $ git clone https://github.com/tacotaha/indexer.git && cd indexer
   $ pip install -r requirements.txt
 ```
 
